@@ -1,77 +1,79 @@
-# PSK
 
-#  Aim
 
-To simulate and analyze the waveform of Binary Phase Shift Keying (BPSK) modulation using Python.
+# WRITE A SIMPLE PSK PROGRAM USING PHYTON 
 
-#  Tools Required
+# AIM
+To perform Phase Shift Keying{PSK} using Python
 
-Python 3.x
+# APPARATUS REQUIRED:
+Python: A versatile programming language used for scientific computing and signal processing.
+NumPy: A powerful numerical library in Python for performing array-based operations and mathematical computations.
+Matplotlib: A plotting library for generating high-quality graphs and visualizations of data, essentialfor demonstrating the sampling process.
 
-Libraries:
-
-numpy
-
-matplotlib (for plotting waveforms)
-
-#  Python Program
-
+# PROGRAM
+```
 import numpy as np
-
 import matplotlib.pyplot as plt
-
-bit_rate = 1 
-
-T = 1 / bit_rate 
-
-fc = 2  
-
-sample_rate = 1000
-
-data = [1, 0, 1, 1, 0, 0, 1, 0]
-
-n = len(data)
-
-total_samples = int(n * T * sample_rate)
-
-t = np.linspace(0, n * T, total_samples, endpoint=False)
-
-bpsk_signal = np.array([])
-
-for bit in data:
-
-    phase = 0 if bit == 1 else np.pi
-    t_bit = np.linspace(0, T, int(T * sample_rate), endpoint=False)
-    wave = np.cos(2 * np.pi * fc * t_bit + phase)
-    bpsk_signal = np.concatenate((bpsk_signal, wave))
-
-plt.figure(figsize=(10, 4))
-
-plt.title("PSK Modulated Signal")
-
-plt.plot(t, bpsk_signal, label='PSK')
-
-plt.xlabel("Time (s)")
-
-plt.ylabel("Amplitude")
-
+from scipy.signal import butter, lfilter
+# Butterworth low-pass filter for demodulation
+def butter_lowpass_filter(data, cutoff, fs, order=5):
+    nyquist = 0.5 * fs
+    normal_cutoff = cutoff / nyquist
+    b, a = butter(order, normal_cutoff, btype='low', analog=False)
+    return lfilter(b, a, data)
+# Parameters
+fs = 1000                # Sampling frequency
+f_carrier = 50           # Carrier frequency
+bit_rate = 10            # Data rate
+T = 1                    # Total time duration
+t = np.linspace(0, T, int(fs * T), endpoint=False)
+# Message signal (binary data)
+bits = np.random.randint(0, 2, bit_rate)
+bit_duration = fs // bit_rate
+message_signal = np.repeat(bits, bit_duration)
+# PSK Modulation (0 -> 0 phase, 1 -> 180° phase shift)
+carrier = np.sin(2 * np.pi * f_carrier * t)
+psk_signal = np.sin(2 * np.pi * f_carrier * t + np.pi * message_signal)
+# PSK Demodulation
+demodulated = psk_signal * carrier
+filtered_signal = butter_lowpass_filter(demodulated, f_carrier, fs)
+decoded_bits = (filtered_signal[::bit_duration] < 0).astype(int)
+# Plotting
+plt.figure(figsize=(12, 8))
+plt.subplot(4, 1, 1)
+plt.plot(t, message_signal, label='Message Signal (Binary)', color='b')
+plt.title('Message Signal')
 plt.grid(True)
-
+plt.subplot(4, 1, 2)
+plt.plot(t, carrier, label='Carrier Signal', color='g')
+plt.title('Carrier Signal')
+plt.grid(True)
+plt.subplot(4, 1, 3)
+plt.plot(t, psk_signal, label='PSK Modulated Signal', color='r')
+plt.title('PSK Modulated Signal')
+plt.grid(True)
+plt.subplot(4, 1, 4)
+plt.step(np.arange(len(decoded_bits)), decoded_bits, label='Decoded Bits', color='r', marker='x')
+plt.title('Decoded Bits')
+plt.grid(True)
+plt.legend()
 plt.tight_layout()
-
 plt.show()
 
-#  Output
 
-![PSK OUTPUT](https://github.com/user-attachments/assets/f1ddf7b2-ce52-4cde-9f8b-9f5d65b4b9d7)
+```
+
+# PROGRAM WAVEFRONT
+
+![image](https://github.com/user-attachments/assets/2cc9aa3d-69d1-4ac5-aa54-cb02a9be18a2)
 
 
-#  Results
+# GRAPH 
 
-Successfully simulated BPSK modulation
 
-Phase inversion observed for binary 0
 
-Output waveform matches theoretical expectations for BPSK
 
-Useful for digital communication systems like wireless or satellite links
+
+
+# RESULT
+  THUS THE PSK (Phase Shift Keying) IS PERFORMED USING PHYTON
